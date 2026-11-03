@@ -1,0 +1,1 @@
+{"b":[["Power on off","power",["NEC",128,4]],["Temp up","temp_up",["NEC",128,31]],["Temp down","temp_down",["NEC",128,8]],["Timer","timer",["NEC",128,6]],["Heat off low high","",["NEC",128,30]],["Flame brightness","",["NEC",128,10]],["Flame seed","",["NEC",128,2]],["Flame color","",["NEC",128,4]],["Ember brightness","",["NEC",128,25]],["Ember color","",["NEC",128,0]]]}

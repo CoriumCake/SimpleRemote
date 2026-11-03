@@ -1,0 +1,1 @@
+{"b":[["On","power_on",["NEC",0,0]],["Off","power_off",["NEC",0,2]],["2h","",["NEC",0,4]],["4h","",["NEC",0,6]],["6h","",["NEC",0,8]],["8h","",["NEC",0,10]],["Candle","",["NEC",0,12]],["Light","light",["NEC",0,14]],["Dim -","bright_down",["NEC",0,16]],["Dim +","bright_up",["NEC",0,18]]]}

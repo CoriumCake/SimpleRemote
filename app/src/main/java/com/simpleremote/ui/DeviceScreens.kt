@@ -1,5 +1,7 @@
 package com.simpleremote.ui
 
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
@@ -150,6 +152,9 @@ private val POPULAR_DEVICES = mapOf(
     DeviceCategory.DISC to listOf("Sony", "Samsung", "LG", "Panasonic", "Philips", "Pioneer", "Toshiba"),
 )
 
+/** "TV", "fan", "DVD / Blu-ray" for use inside a sentence. */
+private val DeviceCategory.noun: String get() = if (label.first().isUpperCase() && label.drop(1).firstOrNull()?.isUpperCase() == true) label else label.lowercase()
+
 @Composable
 fun DeviceBrandsScreen(vm: AppViewModel, s: Screen.DeviceBrands) {
     val brands by produceState<List<DeviceBrand>>(emptyList(), s.category) {
@@ -157,6 +162,7 @@ fun DeviceBrandsScreen(vm: AppViewModel, s: Screen.DeviceBrands) {
     }
     val items = remember(brands) { brands.map { BrandItem(it.name, it.entries.size) } }
     val byKey = remember(brands) { brands.associateBy { it.key } }
+    val scope = rememberCoroutineScope()
     BrandPicker(
         title = "Choose ${s.category.label.lowercase()} brand".replace("tv brand", "TV brand"),
         items = items,
@@ -164,6 +170,12 @@ fun DeviceBrandsScreen(vm: AppViewModel, s: Screen.DeviceBrands) {
         summary = "${brands.sumOf { it.entries.size }} remotes in total",
         onPick = { item -> byKey[item.key]?.let { vm.navigate(Screen.DeviceTest(s.category, it)) } },
         onBack = vm::back,
+        extra = if (brands.isEmpty()) null else ({
+            TryAllCard(
+                "Brand not listed, or no code works?",
+                "Test the most common ${s.category.noun} codes from every brand",
+            ) { scope.launch { vm.navigate(Screen.DeviceTest(s.category, vm.devices.allCodes(s.category))) } }
+        }),
     )
 }
 
@@ -183,7 +195,7 @@ fun DeviceTestScreen(vm: AppViewModel, s: Screen.DeviceTest) {
     val st = categoryStyle(s.category)
 
     Column(Modifier.fillMaxSize()) {
-        ScreenHeader("Set up ${s.brand.name}", onBack = vm::back)
+        ScreenHeader(if (s.brand.mixed) "Try every ${s.category.noun} code" else "Set up ${s.brand.name}", onBack = vm::back)
         Column(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -193,7 +205,13 @@ fun DeviceTestScreen(vm: AppViewModel, s: Screen.DeviceTest) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text("Code ${step + 1} of ${steps.size}", style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
                 Text(
-                    if (group.size > 1) "${group.size} models" else entry.model.take(28),
+                    when {
+                        s.brand.mixed -> group.map { it.brand }.distinct().let { b ->
+                            b.take(3).joinToString(", ") + if (b.size > 3) " +${b.size - 3} brands" else ""
+                        }
+                        group.size > 1 -> "${group.size} models"
+                        else -> entry.model.take(28)
+                    },
                     style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
@@ -263,7 +281,7 @@ fun DeviceTestScreen(vm: AppViewModel, s: Screen.DeviceTest) {
     }
 
     if (naming) {
-        var name by rememberSaveable { mutableStateOf("${s.brand.name} ${s.category.label}") }
+        var name by rememberSaveable { mutableStateOf("${if (s.brand.mixed) entry.brand else s.brand.name} ${s.category.label}") }
         AlertDialog(
             onDismissRequest = { naming = false },
             title = { Text("Name this remote") },

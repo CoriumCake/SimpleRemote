@@ -61,7 +61,8 @@ data class DeviceEntry(
     val k: List<Int> = emptyList(),
 )
 
-data class DeviceBrand(val name: String, val entries: List<DeviceEntry>) {
+/** [mixed]: the "try every code" list of a category, entries from all brands. */
+data class DeviceBrand(val name: String, val entries: List<DeviceEntry>, val mixed: Boolean = false) {
     val key: String get() = brandKey(name)
 
     /** One test step per distinct test code; the fullest remote of each group is the one saved. */
@@ -117,6 +118,11 @@ class DeviceCatalog(private val context: Context) {
                 DeviceBrand(name, list.sortedBy { if (it.src == "flipper") 0 else 1 })
             }
             .sortedBy { it.name.lowercase() }
+    }
+
+    /** Every code of a category from all brands; a step per distinct code, the most widely used first. */
+    suspend fun allCodes(category: DeviceCategory): DeviceBrand = withContext(Dispatchers.IO) {
+        DeviceBrand("All brands", load().filter { it.cat == category.id }, mixed = true)
     }
 
     fun entry(id: String): DeviceEntry? = load().firstOrNull { it.id == id }

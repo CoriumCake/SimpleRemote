@@ -101,7 +101,7 @@ fun BrandsScreen(vm: AppViewModel) {
         summary = "$total code sets in total",
         onPick = { item -> byKey[item.key]?.let { vm.navigate(Screen.TestCodes(it)) } },
         onBack = vm::back,
-        extra = { TryAllCard { vm.tryAllCodes() } },
+        extra = { TryAllCard("Can't find your AC, or no code works?", "Test one code per AC protocol, from all brands") { vm.tryAllCodes() } },
     )
 }
 
@@ -337,12 +337,12 @@ fun TestCodesScreen(vm: AppViewModel, s: Screen.TestCodes) {
 }
 
 @Composable
-private fun TryAllCard(onClick: () -> Unit) {
+internal fun TryAllCard(title: String, subtitle: String, onClick: () -> Unit) {
     Surface(onClick = onClick, shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.fillMaxWidth()) {
         Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("Can't find your AC, or no code works?", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                Text("Test one code per AC protocol, from all brands", style = MaterialTheme.typography.bodySmall)
+                Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                Text(subtitle, style = MaterialTheme.typography.bodySmall)
             }
             Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null)
         }

@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.simpleremote.data.AcAction
 import com.simpleremote.data.AcCatalog
 import com.simpleremote.data.AcModel
+import com.simpleremote.data.models
 import com.simpleremote.data.AcState
 import com.simpleremote.data.AppServices
 import com.simpleremote.data.Stats
@@ -40,6 +41,9 @@ sealed interface Screen {
     data class AcRemote(val uid: String) : Screen
     /** Button-remote devices: brand list → test codes → remote. */
     data class DeviceBrands(val category: DeviceCategory) : Screen
+    /** Optional step between brand and test: pick the exact model, or "I don't know". */
+    data class DeviceModels(val category: DeviceCategory, val brand: DeviceBrand) : Screen
+    data class AcModels(val brand: Brand) : Screen
     data class DeviceTest(val category: DeviceCategory, val brand: DeviceBrand, val step: Int = 0) : Screen
     data class DeviceRemote(val uid: String) : Screen
     data object About : Screen
@@ -127,6 +131,13 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         val sig = button.signal()
         if (sig == null) message = "Can't send \"${button.label}\"" else send(listOf(sig))
     }
+
+    /** After choosing a brand: the model list when the brand has named models, else straight to testing. */
+    fun pickBrand(category: DeviceCategory, brand: DeviceBrand) =
+        navigate(if (brand.models.size >= 2) Screen.DeviceModels(category, brand) else Screen.DeviceTest(category, brand))
+
+    fun pickAcBrand(brand: Brand) =
+        navigate(if (brand.models().size >= 2) Screen.AcModels(brand) else Screen.TestCodes(brand))
 
     /** Opens the add flow for a category: AC has its own brand list. */
     fun openCategory(c: DeviceCategory) = navigate(if (c == DeviceCategory.AC) Screen.Brands else Screen.DeviceBrands(c))

@@ -59,6 +59,8 @@ fun SimpleRemoteApp(vm: AppViewModel = viewModel()) {
                         Screen.Brands -> BrandsScreen(vm)
                         is Screen.DeviceBrands -> DeviceBrandsScreen(vm, screen)
                         is Screen.DeviceTest -> DeviceTestScreen(vm, screen)
+                        is Screen.DeviceModels -> DeviceModelsScreen(vm, screen)
+                        is Screen.AcModels -> AcModelsScreen(vm, screen)
                         is Screen.DeviceRemote -> DeviceRemoteScreen(vm, screen)
                         is Screen.TestCodes -> TestCodesScreen(vm, screen)
                         is Screen.AcRemote -> AcRemoteScreen(vm, screen)

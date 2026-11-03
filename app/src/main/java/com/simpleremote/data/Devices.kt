@@ -61,15 +61,56 @@ data class DeviceEntry(
     val k: List<Int> = emptyList(),
 )
 
-/** [mixed]: the "try every code" list of a category, entries from all brands. */
-data class DeviceBrand(val name: String, val entries: List<DeviceEntry>, val mixed: Boolean = false) {
+/**
+ * [mixed]: the "try every code" list of a category, entries from all brands.
+ * [pin]: the model the user picked; its code is tested first and it is the remote saved for that step.
+ */
+data class DeviceBrand(val name: String, val entries: List<DeviceEntry>, val mixed: Boolean = false, val pin: String? = null) {
     val key: String get() = brandKey(name)
 
     /** One test step per distinct test code; the fullest remote of each group is the one saved. */
     val steps: List<List<DeviceEntry>> by lazy {
-        entries.groupBy { it.g }.values
+        val groups = entries.groupBy { it.g }.values
             .map { group -> group.sortedByDescending { it.n } }
             .sortedByDescending { it.size }
+        if (pin == null) groups
+        else groups.sortedBy { g -> if (g.any { it.id == pin }) 0 else 1 }
+            .map { g -> g.sortedBy { if (it.id == pin) 0 else 1 } }
+    }
+
+    /** Named models of this brand, for the model picker. */
+    val models: List<ModelChoice> by lazy {
+        entries.filter { it.model.isNotBlank() && brandKey(it.model) != key }
+            .map { ModelChoice(it.model.trim(), it.id) }
+            .distinctBy { it.label.lowercase() }
+            .sortedWith(compareBy(NaturalOrder) { it.label })
+    }
+}
+
+/** One choosable model name and the code set it belongs to. */
+data class ModelChoice(val label: String, val id: String) {
+    val key: String = brandKey(label)
+
+    /** "32lf650" finds "32LF650V", and a full label like "55UN7300AUD-XX" still finds "55UN7300AUD". */
+    fun matches(query: String): Boolean {
+        val q = brandKey(query)
+        return q.isEmpty() || key.contains(q) || (key.length >= 5 && q.contains(key))
+    }
+}
+
+/** Sorts "TV 9" before "TV 10". */
+object NaturalOrder : Comparator<String> {
+    private val chunk = Regex("\\d+|\\D+")
+    override fun compare(a: String, b: String): Int {
+        val x = chunk.findAll(a.lowercase()).map { it.value }.toList()
+        val y = chunk.findAll(b.lowercase()).map { it.value }.toList()
+        for (i in 0 until minOf(x.size, y.size)) {
+            val (p, q) = x[i] to y[i]
+            val c = if (p[0].isDigit() && q[0].isDigit()) p.trimStart('0').length.compareTo(q.trimStart('0').length).takeIf { it != 0 } ?: p.compareTo(q)
+            else p.compareTo(q)
+            if (c != 0) return c
+        }
+        return x.size.compareTo(y.size)
     }
 }
 

@@ -84,4 +84,28 @@ class DeviceCodesTest {
         for (c in listOf("tv", "disc", "fan", "projector", "audio"))
             assertTrue("no IRext $c remotes", idx.count { it.cat == c } > 50)
     }
+
+    @Test
+    fun pickedModelIsTestedFirstAndSaved() {
+        val idx = index("flipper_index.json")
+        if (idx.isEmpty()) return
+        val lg = DeviceBrand("LG", idx.filter { it.cat == "tv" && brandKey(it.brand) == "lg" })
+        assertTrue("LG TV should offer models", lg.models.size >= 10)
+        for (m in lg.models) {
+            val first = lg.copy(pin = m.id).steps.first().first()
+            assertTrue("picking ${m.label} should test it first", first.id == m.id)
+        }
+        // pinning only reorders: no code is lost
+        val pinned = lg.copy(pin = lg.models.last().id)
+        assertTrue(pinned.steps.flatten().map { it.id }.toSet() == lg.steps.flatten().map { it.id }.toSet())
+    }
+
+    @Test
+    fun modelSearchMatchesPartialAndFullLabels() {
+        val m = ModelChoice("55UN7300AUD", "x")
+        assertTrue(m.matches("55un7300"))
+        assertTrue(m.matches("55UN7300AUD-XX"))
+        assertTrue(!m.matches("43UN"))
+        assertTrue(listOf("TV 10", "TV 9", "A 2").sortedWith(NaturalOrder) == listOf("A 2", "TV 9", "TV 10"))
+    }
 }

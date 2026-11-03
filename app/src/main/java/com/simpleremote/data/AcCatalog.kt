@@ -10,6 +10,18 @@ data class Brand(val name: String, val entries: List<AcIndexEntry>) {
     val key: String get() = brandKey(name)
 }
 
+/**
+ * Real AC model numbers of a brand, for the model picker. Left out: "Unknown", protocol names such as
+ * "COOLIX" (no digit), and the descriptive names of hand-made captures (source "github").
+ */
+fun Brand.models(): List<ModelChoice> = entries.filter { it.source != "github" }.flatMap { e ->
+    e.models.map { it.trim() }.filter { m -> m.any { it.isDigit() } && brandKey(m) != key }
+        .map { ModelChoice(it, e.id) }
+}.distinctBy { it.label.lowercase() }.sortedWith(compareBy(NaturalOrder) { it.label })
+
+/** The brand's code sets with [id] tested first. */
+fun Brand.pinned(id: String): Brand = copy(entries = entries.sortedBy { if (it.id == id) 0 else 1 })
+
 /** "Saijo-Denki", "saijo denki" and "SAIJO DENKI" all match. */
 fun brandKey(s: String): String = s.lowercase().filter { it.isLetterOrDigit() }
 

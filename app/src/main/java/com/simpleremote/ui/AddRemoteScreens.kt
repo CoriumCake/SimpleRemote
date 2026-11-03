@@ -99,7 +99,7 @@ fun BrandsScreen(vm: AppViewModel) {
         items = items,
         popularNames = POPULAR,
         summary = "$total code sets in total",
-        onPick = { item -> byKey[item.key]?.let { vm.navigate(Screen.TestCodes(it)) } },
+        onPick = { item -> byKey[item.key]?.let { vm.pickAcBrand(it) } },
         onBack = vm::back,
         extra = { TryAllCard("Can't find your AC, or no code works?", "Test one code per AC protocol, from all brands") { vm.tryAllCodes() } },
     )
@@ -248,7 +248,11 @@ fun TestCodesScreen(vm: AppViewModel, s: Screen.TestCodes) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text("Code set ${index + 1} of ${entries.size}", style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
                 Text(
-                    if (scanAll) "${entry.manufacturer} · ${sourceLabel(entry.source)}" else sourceLabel(entry.source),
+                    listOfNotNull(
+                        entry.manufacturer.takeIf { scanAll },
+                        entry.models.firstOrNull { it.isNotBlank() && !it.equals("unknown", ignoreCase = true) }?.take(24),
+                        sourceLabel(entry.source),
+                    ).joinToString(" · "),
                     style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }

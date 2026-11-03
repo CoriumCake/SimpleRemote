@@ -168,7 +168,7 @@ fun DeviceBrandsScreen(vm: AppViewModel, s: Screen.DeviceBrands) {
         items = items,
         popularNames = POPULAR_DEVICES[s.category].orEmpty(),
         summary = "${brands.sumOf { it.entries.size }} remotes in total",
-        onPick = { item -> byKey[item.key]?.let { vm.navigate(Screen.DeviceTest(s.category, it)) } },
+        onPick = { item -> byKey[item.key]?.let { vm.pickBrand(s.category, it) } },
         onBack = vm::back,
         extra = if (brands.isEmpty()) null else ({
             TryAllCard(
@@ -206,6 +206,7 @@ fun DeviceTestScreen(vm: AppViewModel, s: Screen.DeviceTest) {
                 Text("Code ${step + 1} of ${steps.size}", style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
                 Text(
                     when {
+                        s.brand.pin == entry.id -> "Model ${entry.model.take(28)}"
                         s.brand.mixed -> group.map { it.brand }.distinct().let { b ->
                             b.take(3).joinToString(", ") + if (b.size > 3) " +${b.size - 3} brands" else ""
                         }

@@ -16,6 +16,8 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "0.1.0"
+        // Opt-in anonymous code statistics endpoint (see server/ and data/Stats.kt). Empty = never sent.
+        buildConfigField("String", "STATS_URL", "\"${providers.gradleProperty("statsUrl").orNull ?: ""}\"")
     }
 
     buildTypes {
@@ -40,7 +42,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    buildFeatures { compose = true }
+    buildFeatures { compose = true; buildConfig = true }
 }
 
 kotlin {

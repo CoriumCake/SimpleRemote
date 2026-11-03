@@ -11,6 +11,9 @@ import com.simpleremote.data.AcAction
 import com.simpleremote.data.AcCatalog
 import com.simpleremote.data.AcModel
 import com.simpleremote.data.AcState
+import com.simpleremote.data.AppServices
+import com.simpleremote.data.Stats
+import com.simpleremote.widget.RemoteWidget
 import com.simpleremote.data.Brand
 import com.simpleremote.data.DeviceBrand
 import com.simpleremote.data.DeviceCatalog
@@ -43,10 +46,11 @@ sealed interface Screen {
 }
 
 class AppViewModel(app: Application) : AndroidViewModel(app) {
-    val catalog = AcCatalog(app)
-    val devices = DeviceCatalog(app)
-    private val store = SavedRemotesStore(app)
-    private val ir = IrTransmitter(app)
+    private val svc = AppServices.get(app)
+    val catalog: AcCatalog = svc.catalog
+    val devices: DeviceCatalog = svc.devices
+    private val store: SavedRemotesStore = svc.store
+    private val ir: IrTransmitter = svc.ir
 
     val hasIrEmitter = ir.hasEmitter
     val remotes = mutableStateListOf<SavedRemote>().apply { addAll(store.load()) }
@@ -59,8 +63,11 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     /** Number of remotes per device category id (AC = AC code sets). */
     var categoryCounts by mutableStateOf<Map<String, Int>>(emptyMap()); private set
     var message by mutableStateOf<String?>(null)
+    /** Anonymous code statistics: null = not asked yet. */
+    var statsConsent by mutableStateOf(Stats.consent(app)); private set
 
     init {
+        Stats.flush(app)
         viewModelScope.launch {
             brands = runCatching { catalog.brands() }.getOrDefault(emptyList())
             val counts = runCatching { devices.counts() }.getOrDefault(emptyMap()).toMutableMap()
@@ -68,6 +75,29 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
             categoryCounts = counts
         }
     }
+
+    /** Re-reads saved remotes (the widget may have changed an AC's state while the app was in the background). */
+    fun reload() {
+        val fresh = store.load()
+        if (fresh != remotes.toList()) { remotes.clear(); remotes.addAll(fresh) }
+    }
+
+    /** Opens a saved remote, e.g. from the widget. */
+    fun openUid(uid: String) {
+        reload()
+        val r = remotes.firstOrNull { it.uid == uid } ?: return
+        resetTo(Screen.Home)
+        open(r)
+    }
+
+    fun setStatsConsent(allowed: Boolean) {
+        Stats.setConsent(getApplication(), allowed)
+        statsConsent = allowed
+    }
+
+    /** Result of testing one code during setup ("Yes, it works" / "No"). */
+    fun reportTest(cat: String, brand: String, code: String, src: String, ok: Boolean, step: Int, mixed: Boolean) =
+        Stats.record(getApplication(), Stats.Event("setup", cat, brand, code, src, ok = ok, step = step, mixed = mixed))
 
     fun navigate(s: Screen) { backStack += s }
     fun replace(s: Screen) { backStack[backStack.lastIndex] = s }
@@ -105,7 +135,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     fun addDevice(entry: DeviceEntry, name: String) {
         val r = SavedRemote(uid = UUID.randomUUID().toString(), type = entry.cat, deviceId = entry.id,
-            name = name.ifBlank { entry.brand })
+            name = name.ifBlank { entry.brand }, created = System.currentTimeMillis(),
+            brand = entry.brand, src = entry.src)
         remotes += r
         persist()
         resetTo(Screen.Home, Screen.DeviceRemote(r.uid))
@@ -136,6 +167,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         val r = SavedRemote(
             uid = UUID.randomUUID().toString(), deviceId = model.id,
             name = name.ifBlank { model.manufacturer }, state = model.defaultState(),
+            created = System.currentTimeMillis(), brand = model.manufacturer,
+            src = catalog.entrySource(model.id),
         )
         remotes += r
         persist()
@@ -153,10 +186,18 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun delete(uid: String) {
+        remotes.firstOrNull { it.uid == uid }?.let { r ->
+            // A remote deleted soon after setup hints that its code did not really work.
+            val days = if (r.created > 0) ((System.currentTimeMillis() - r.created) / 86_400_000L).toInt() else null
+            Stats.record(getApplication(), Stats.Event("deleted", r.type, r.brand, r.deviceId, r.src, days = days))
+        }
         remotes.removeAll { it.uid == uid }
         persist()
         resetTo(Screen.Home)
     }
 
-    private fun persist() = store.save(remotes.toList())
+    private fun persist() {
+        store.save(remotes.toList())
+        RemoteWidget.refreshAll(getApplication())
+    }
 }

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SimpleRemote</string>
+    <string name="widget_name">Remote</string>
+    <string name="widget_description">Power and the most used buttons of one of your remotes</string>
 </resources>

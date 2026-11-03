@@ -1,5 +1,8 @@
 package com.simpleremote.ui
 
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.Switch
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -44,6 +47,19 @@ fun AboutScreen(vm: AppViewModel) {
                     "(${sets.count { it.source == "irext" }} IRext, ${sets.count { it.source == "smartir" }} SmartIR)",
                 style = MaterialTheme.typography.bodyMedium,
             )
+            Card(
+                Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest),
+                shape = MaterialTheme.shapes.medium,
+            ) {
+                Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f).padding(end = 12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text("Share anonymous code results", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                        Text(STATS_EXPLANATION, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Switch(checked = vm.statsConsent == true, onCheckedChange = vm::setStatsConsent)
+                }
+            }
             SourceCard("Flipper-IRDB", "github.com/Lucaslhm/Flipper-IRDB — TV, projector, fan, audio, light and other remotes (CC0)", flipper)
             SourceCard(
                 "IRremoteESP8266",

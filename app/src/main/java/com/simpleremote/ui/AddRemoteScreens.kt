@@ -300,6 +300,7 @@ fun TestCodesScreen(vm: AppViewModel, s: Screen.TestCodes) {
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
                         OutlinedButton(
                             onClick = {
+                                vm.reportTest("ac", entry.manufacturer, entry.id, entry.source, ok = false, step = index, mixed = scanAll)
                                 when {
                                     index < entries.lastIndex -> vm.replace(s.copy(index = index + 1))
                                     !scanAll -> vm.tryAllCodes(after = s.brand)
@@ -308,7 +309,10 @@ fun TestCodesScreen(vm: AppViewModel, s: Screen.TestCodes) {
                             },
                             modifier = Modifier.weight(1f).height(56.dp),
                         ) { Text(if (index < entries.lastIndex) "No, try next" else if (!scanAll) "No, try all brands" else "No") }
-                        Button(onClick = { naming = true }, modifier = Modifier.weight(1f).height(56.dp)) { Text("Yes, it works") }
+                        Button(onClick = {
+                            vm.reportTest("ac", entry.manufacturer, entry.id, entry.source, ok = true, step = index, mixed = scanAll)
+                            naming = true
+                        }, modifier = Modifier.weight(1f).height(56.dp)) { Text("Yes, it works") }
                     }
                 }
             }

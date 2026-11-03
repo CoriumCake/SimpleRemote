@@ -1,0 +1,8 @@
+<resources>
+    <color name="widget_bg">#F21B1E24</color>
+    <color name="widget_text">#E6E8EC</color>
+    <color name="widget_subtext">#9AA1AD</color>
+    <color name="widget_key">#FF2C3038</color>
+    <color name="widget_power">#E5484D</color>
+    <color name="widget_on_power">#FFFFFF</color>
+</resources>

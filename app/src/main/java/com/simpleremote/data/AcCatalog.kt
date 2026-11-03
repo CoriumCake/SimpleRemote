@@ -55,6 +55,9 @@ class AcCatalog(private val context: Context) {
         Brand(ALL_BRANDS, order.mapNotNull { all[it] }.filter { it.id !in tried && (it.source != "irext" || it.file !in triedFiles) })
     }
 
+    /** "smartir", "irext", "esp", "github" — where a code set comes from. */
+    fun entrySource(id: String): String = loadEntries()[normaliseId(id)]?.source.orEmpty()
+
     suspend fun model(id: String): AcModel = withContext(Dispatchers.IO) {
         synchronized(cache) { cache[id] } ?: run {
             val fullId = normaliseId(id)

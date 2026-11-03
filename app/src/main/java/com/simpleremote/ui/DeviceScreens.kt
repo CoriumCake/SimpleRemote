@@ -266,12 +266,16 @@ fun DeviceTestScreen(vm: AppViewModel, s: Screen.DeviceTest) {
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
                         OutlinedButton(
                             onClick = {
+                                vm.reportTest(entry.cat, entry.brand, entry.id, entry.src, ok = false, step = step, mixed = s.brand.mixed)
                                 if (step < steps.lastIndex) vm.replace(s.copy(step = step + 1))
                                 else vm.message = "That was the last code for ${s.brand.name}"
                             },
                             modifier = Modifier.weight(1f).height(56.dp),
                         ) { Text(if (step < steps.lastIndex) "No, try next" else "No") }
-                        Button(onClick = { naming = true }, modifier = Modifier.weight(1f).height(56.dp)) { Text("Yes, it works") }
+                        Button(onClick = {
+                            vm.reportTest(entry.cat, entry.brand, entry.id, entry.src, ok = true, step = step, mixed = s.brand.mixed)
+                            naming = true
+                        }, modifier = Modifier.weight(1f).height(56.dp)) { Text("Yes, it works") }
                     }
                 }
             }

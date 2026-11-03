@@ -12,6 +12,10 @@ data class SavedRemote(
     val deviceId: String,
     val name: String,
     val state: AcState? = null,
+    /** Set-up time (ms) and code origin, for the opt-in statistics; 0 / "" for remotes from older versions. */
+    val created: Long = 0,
+    val brand: String = "",
+    val src: String = "",
 )
 
 class SavedRemotesStore(context: Context) {

@@ -1,5 +1,6 @@
 package com.simpleremote.ui
 
+import androidx.compose.material3.TextButton
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -66,6 +67,7 @@ fun HomeScreen(vm: AppViewModel) {
             IconButton(onClick = { vm.navigate(Screen.About) }) { Icon(Icons.Outlined.Info, "About") }
         }
         if (!vm.hasIrEmitter) NoIrBanner()
+        if (vm.statsConsent == null) StatsConsentCard(onAnswer = vm::setStatsConsent)
 
         if (vm.remotes.isEmpty()) {
             EmptyHome(onAdd = { vm.navigate(Screen.Categories) })
@@ -178,6 +180,30 @@ private fun EmptyHome(onAdd: () -> Unit) {
         Spacer(Modifier.height(28.dp))
         Button(onClick = onAdd, modifier = Modifier.height(52.dp), contentPadding = PaddingValues(horizontal = 28.dp)) {
             Icon(Icons.Rounded.Add, null); Spacer(Modifier.size(8.dp)); Text("Add a remote")
+        }
+    }
+}
+
+/** What the opt-in statistics contain; shared by the home card and the About switch. */
+const val STATS_EXPLANATION = "When you test a code during setup, share whether it worked: device type, brand, " +
+    "code id, phone model and app version. No names, account or location. This shows which codes work " +
+    "best so they can be tried first."
+
+@Composable
+private fun StatsConsentCard(onAnswer: (Boolean) -> Unit) {
+    Card(
+        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+        shape = MaterialTheme.shapes.medium,
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Text("Help improve the codes?", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Spacer(Modifier.size(4.dp))
+            Text(STATS_EXPLANATION, style = MaterialTheme.typography.bodySmall)
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                TextButton(onClick = { onAnswer(false) }) { Text("No thanks") }
+                TextButton(onClick = { onAnswer(true) }) { Text("Share anonymously") }
+            }
         }
     }
 }

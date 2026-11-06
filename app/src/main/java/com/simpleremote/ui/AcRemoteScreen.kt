@@ -61,7 +61,6 @@ import androidx.compose.ui.unit.sp
 import com.simpleremote.data.AcAction
 import com.simpleremote.data.AcModel
 import com.simpleremote.data.AcState
-import com.simpleremote.data.IrextAc
 import com.simpleremote.data.defaultState
 import com.simpleremote.data.normalise
 import com.simpleremote.data.tempKey
@@ -166,11 +165,7 @@ private fun AcControls(vm: AppViewModel, uid: String, d: AcModel, state: AcState
             }
         }
 
-        Text(
-            "${d.manufacturer} · ${if (d is IrextAc) "IRext" else "SmartIR"} code set",
-            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 24.dp),
-        )
+        Spacer(Modifier.height(24.dp))
     }
 }
 

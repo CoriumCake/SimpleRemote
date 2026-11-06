@@ -67,7 +67,7 @@ fun HomeScreen(vm: AppViewModel) {
             IconButton(onClick = { vm.navigate(Screen.About) }) { Icon(Icons.Outlined.Info, "About") }
         }
         if (!vm.hasIrEmitter) NoIrBanner()
-        if (vm.statsConsent == null) StatsConsentCard(onAnswer = vm::setStatsConsent)
+        if (STATS_ENABLED && vm.statsConsent == null) StatsConsentCard(onAnswer = vm::setStatsConsent)
 
         if (vm.remotes.isEmpty()) {
             EmptyHome(onAdd = { vm.navigate(Screen.Categories) })
@@ -183,6 +183,9 @@ private fun EmptyHome(onAdd: () -> Unit) {
         }
     }
 }
+
+/** False when the build has no stats endpoint: then nothing is ever sent, so consent is never asked. */
+val STATS_ENABLED: Boolean get() = com.simpleremote.BuildConfig.STATS_URL.isNotBlank()
 
 /** What the opt-in statistics contain; shared by the home card and the About switch. */
 const val STATS_EXPLANATION = "When you test a code during setup, share whether it worked: device type, brand, " +

@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -9,8 +11,24 @@ android {
     namespace = "com.simpleremote"
     compileSdk = 36
 
+    // Upload key for Google Play, kept outside the repo. Point -PkeystoreProps at another file to override.
+    val keystoreProps = Properties().apply {
+        val f = file(providers.gradleProperty("keystoreProps").orNull
+            ?: "${System.getProperty("user.home")}/keys/simpleremote-keystore.properties")
+        if (f.exists()) f.inputStream().use { load(it) }
+    }
+    signingConfigs {
+        if (keystoreProps.isNotEmpty()) create("upload") {
+            storeFile = file(keystoreProps.getProperty("storeFile"))
+            storePassword = keystoreProps.getProperty("storePassword")
+            keyAlias = keystoreProps.getProperty("keyAlias")
+            keyPassword = keystoreProps.getProperty("keyPassword")
+        }
+    }
+
     defaultConfig {
-        applicationId = "com.simpleremote"
+        // Store identity; the Kotlin package (namespace) stays com.simpleremote.
+        applicationId = "com.coriumcake.simpleremote"
         // ConsumerIrManager exists since API 19; 4.4.3+ uses microsecond patterns.
         minSdk = 23
         targetSdk = 36
@@ -23,6 +41,8 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
+            signingConfig = signingConfigs.findByName("upload")
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }

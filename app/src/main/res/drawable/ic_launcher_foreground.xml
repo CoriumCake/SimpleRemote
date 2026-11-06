@@ -1,0 +1,14 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Same artwork as mipmap/ic_launcher, scaled into the 66dp adaptive-icon safe zone. -->
+    <group android:pivotX="54" android:pivotY="57" android:scaleX="0.8" android:scaleY="0.8">
+        <path android:fillColor="#FFFFFF" android:pathData="M42,40h24a4,4 0,0 1,4 4v40a4,4 0,0 1,-4 4h-24a4,4 0,0 1,-4 -4v-40a4,4 0,0 1,4 -4z" />
+        <path android:fillColor="#1E88E5" android:pathData="M54,48a5,5 0,1 1,0 10a5,5 0,1 1,0 -10z" />
+        <path android:fillColor="#90CAF9" android:pathData="M45,64h6v6h-6zM57,64h6v6h-6zM45,74h6v6h-6zM57,74h6v6h-6z" />
+        <path android:strokeColor="#FFFFFF" android:strokeWidth="3" android:strokeLineCap="round" android:fillColor="#00000000"
+            android:pathData="M46,32q8,-6 16,0M42,26q12,-9 24,0" />
+    </group>
+</vector>

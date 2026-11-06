@@ -47,7 +47,7 @@ fun AboutScreen(vm: AppViewModel) {
                     "(${sets.count { it.source == "irext" }} IRext, ${sets.count { it.source == "smartir" }} SmartIR)",
                 style = MaterialTheme.typography.bodyMedium,
             )
-            Card(
+            if (STATS_ENABLED) Card(
                 Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest),
                 shape = MaterialTheme.shapes.medium,

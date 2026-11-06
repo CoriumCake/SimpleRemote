@@ -44,6 +44,30 @@ trimmed to fit Android's 2-second transmit limit.
 
 AGP 8.11 · Kotlin 2.2 · Jetpack Compose · minSdk 23 · compileSdk 36.
 
+## Release (Google Play)
+
+```bash
+./gradlew bundleRelease        # app/build/outputs/bundle/release/app-release.aab, signed with the upload key
+```
+
+The upload key lives **outside the repo** in `~/keys/simpleremote-upload.jks`, and its passwords are in
+`~/keys/simpleremote-keystore.properties` (or pass `-PkeystoreProps=/path/to/file`). Without that file the
+release build is left unsigned. Back up both files: Play App Signing lets you reset a lost upload key,
+but only through Google support.
+
+- Application id: `com.coriumcake.simpleremote` (the Kotlin package stays `com.simpleremote`)
+- Bump `versionCode` in `app/build.gradle.kts` for every upload
+- Store text, data-safety answers and graphics: [`store/`](store/listing.md)
+- Privacy policy: [PRIVACY.md](PRIVACY.md)
+
+## Third-party code and licenses
+
+`app/src/main/cpp/irremoteesp8266/` is [IRremoteESP8266](https://github.com/crankyoldgit/IRremoteESP8266)
+(LGPL-2.1), built as its own shared library `libirac.so` (see `app/src/main/cpp/Android.mk`) so it can be
+replaced. `app/src/main/cpp/irext/` is [IRext](https://github.com/irext) (MIT). Code databases: SmartIR (MIT),
+Flipper-IRDB (CC0), IRext (MIT), AirBridge (MIT). Full texts are in `app/src/main/assets/licenses/` and in
+the app's About screen.
+
 ## Roadmap ideas
 - More code sources: IRremoteESP8266 AC protocol encoders (generate any state instead of
   looking it up), IRDB / Flipper-IRDB for TVs, fans, projectors, set-top boxes

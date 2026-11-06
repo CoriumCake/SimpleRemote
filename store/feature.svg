@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="500" viewBox="0 0 1024 500">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1E88E5"/><stop offset="1" stop-color="#1565C0"/></linearGradient></defs>
+  <rect width="1024" height="500" fill="url(#g)"/>
+  <g transform="translate(30 70) scale(3.3)">
+    <path fill="#FFFFFF" d="M42,40h24a4,4 0,0 1,4 4v40a4,4 0,0 1,-4 4h-24a4,4 0,0 1,-4 -4v-40a4,4 0,0 1,4 -4z"/>
+    <path fill="#1E88E5" d="M54,48a5,5 0,1 1,0 10a5,5 0,1 1,0 -10z"/>
+    <path fill="#90CAF9" d="M45,64h6v6h-6zM57,64h6v6h-6zM45,74h6v6h-6zM57,74h6v6h-6z"/>
+    <path stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" fill="none" d="M46,32q8,-6 16,0M42,26q12,-9 24,0"/>
+  </g>
+  <text x="440" y="225" font-family="sans-serif" font-size="68" font-weight="700" fill="#FFFFFF">SimpleRemote</text>
+  <text x="442" y="290" font-family="sans-serif" font-size="34" fill="#E3F2FD">AC, TV, fan &amp; projector remote</text>
+  <text x="442" y="340" font-family="sans-serif" font-size="34" fill="#E3F2FD">for phones with an IR blaster</text>
+</svg>

@@ -9,3 +9,7 @@ captures/
 app/.cxx/
 *.apk
 __pycache__/
+*.jks
+*.keystore
+keystore.properties
+*.aab
